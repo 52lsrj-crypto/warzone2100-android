@@ -1,0 +1,91 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'net.wz2100.wz'
+    compileSdk 36
+    ndkVersion "28.2.13676358"
+
+    defaultConfig {
+        applicationId "net.wz2100.wz"
+        minSdk 28
+        targetSdk 36
+        versionCode 1
+        versionName "master"
+
+        ndk {
+            abiFilters "arm64-v8a"
+        }
+
+        externalNativeBuild {
+            cmake {
+                def vcpkgRoot         = System.getenv('VCPKG_ROOT') ?: ''
+                def ndkHome           = System.getenv('ANDROID_NDK_HOME') ?: ''
+                def vcpkgInstalledDir = project.findProperty('vcpkg.installed.dir') ?: ''
+                def cmakeArgs = [
+                    "-DCMAKE_BUILD_TYPE=Release",
+                    "-DWZ_ENABLE_WARNINGS=OFF",
+                    "-DWZ_ENABLE_WARNINGS_AS_ERRORS=OFF",
+                    "-DENABLE_DOCS=OFF",
+                    "-DENABLE_NLS=OFF",
+                    "-DWZ_ENABLE_BACKEND_VULKAN=OFF",
+                    "-DENABLE_GNS_NETWORK_BACKEND=OFF",
+                    "-DENABLE_DISCORD=OFF",
+                    "-DVCPKG_TARGET_TRIPLET=arm64-android",
+                ]
+                def ccachePath = ["which", "ccache"].execute().text.trim()
+                if (ccachePath) {
+                    cmakeArgs += "-DCMAKE_C_COMPILER_LAUNCHER=ccache"
+                    cmakeArgs += "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+                }
+                if (vcpkgRoot) {
+                    cmakeArgs += "-DCMAKE_TOOLCHAIN_FILE=${vcpkgRoot}/scripts/buildsystems/vcpkg.cmake"
+                }
+                if (ndkHome) {
+                    cmakeArgs += "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=${ndkHome}/build/cmake/android.toolchain.cmake"
+                }
+                if (vcpkgInstalledDir) {
+                    cmakeArgs += "-DVCPKG_INSTALLED_DIR=${vcpkgInstalledDir}"
+                }
+                arguments(*cmakeArgs)
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            // Path to the top-level CMakeLists.txt (two directories up from here)
+            path "../../../CMakeLists.txt"
+            version "3.22.1"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            jniDebuggable true
+        }
+    }
+
+    sourceSets {
+        main {
+            // SDL3 shared library pre-built for arm64-v8a lives here (see README-build.md)
+            jniLibs.srcDirs = ['src/main/jniLibs']
+        }
+    }
+
+    aaptOptions {
+        // .wz files are already compressed zip archives; prevent AAPT2 from
+        // double-compressing them so AssetManager streaming stays fast.
+        noCompress "wz"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
