@@ -2583,8 +2583,23 @@ bool intAddReticule()
 		sButInit.width = RET_BUTWIDTH;
 		sButInit.height = RET_BUTHEIGHT;
 		sButInit.pDisplay = intDisplayReticuleButton;
+#if defined(__ANDROID__)
+		{
+			// Center the button cluster within the larger Android panel.
+			// Cluster bounds in the original 132x132 form: x in [13,106], y in [15,115]
+			const int clusterMinX = 13, clusterW = 93;  // 81+25-13
+			const int clusterMinY = 15, clusterH = 100; // 87+28-15
+			int panelW = pie_GetVideoBufferWidth() / 3;
+			int panelH = pie_GetVideoBufferHeight() / 4;
+			int offsetX = std::max(0, (panelW - clusterW) / 2) - clusterMinX;
+			int offsetY = std::max(0, (panelH - clusterH) / 2) - clusterMinY;
+			sButInit.x = ReticuleOffsets[i].x + offsetX;
+			sButInit.y = ReticuleOffsets[i].y + offsetY;
+		}
+#else
 		sButInit.x = ReticuleOffsets[i].x;
 		sButInit.y = ReticuleOffsets[i].y;
+#endif
 		sButInit.pTip = retbutstats[i].tip;
 		sButInit.style = WBUT_SECONDARY;
 		sButInit.UserData = i;

@@ -98,10 +98,18 @@ enum  				  // Reticule button indecies.
 #define IDSTAT_PRODEND			4699
 
 // Reticule position.
-#define RET_X				6
-#define RET_Y				(324+E_H)
-#define RET_FORMWIDTH		132
-#define RET_FORMHEIGHT		132
+#if defined(__ANDROID__)
+// Android: panels span full screen width in three equal sections for better touch usability
+#define RET_X           0
+#define RET_FORMWIDTH   (pie_GetVideoBufferWidth() / 3)
+#define RET_FORMHEIGHT  (pie_GetVideoBufferHeight() / 4)
+#define RET_Y           (pie_GetVideoBufferHeight() - RET_FORMHEIGHT)
+#else
+#define RET_X			6
+#define RET_Y			(324+E_H)
+#define RET_FORMWIDTH	132
+#define RET_FORMHEIGHT	132
+#endif
 
 // chat stuff
 #define CHAT_CONSOLEBOX	0x4A001
@@ -117,11 +125,19 @@ enum  				  // Reticule button indecies.
 #define OPT_GAP			5
 
 // Object screen position. (aka where the factories, research builds show up) [right of command retile]
+#if defined(__ANDROID__)
+#define BASE_GAP        0
+#define OBJ_BACKWIDTH   (pie_GetVideoBufferWidth() / 3)
+#define OBJ_BACKHEIGHT  (pie_GetVideoBufferHeight() / 4)
+#define OBJ_BACKX       (pie_GetVideoBufferWidth() / 3)
+#define OBJ_BACKY       (pie_GetVideoBufferHeight() - pie_GetVideoBufferHeight() / 4)
+#else
 #define BASE_GAP		6
-#define OBJ_BACKWIDTH	320	//316		// Width of object screen back form.
+#define OBJ_BACKWIDTH	320		// Width of object screen back form.
 #define OBJ_BACKHEIGHT	115		// Height of object screen back form.
 #define OBJ_BACKX		(RET_X + RET_FORMWIDTH + BASE_GAP + D_W)	// X coord of object screen back form.
 #define OBJ_BACKY		RET_Y	// Y coord of object screen back form.
+#endif
 
 #define GROUP_BACKX OBJ_BACKX
 #define GROUP_BACKY OBJ_BACKY + 40

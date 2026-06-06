@@ -29,10 +29,18 @@
 #define VISIBLE_XTILES 64
 #define VISIBLE_YTILES 64
 
+#if defined(__ANDROID__)
+// Android: radar occupies the right third of the screen bottom panel
+#define RADTLX    (2 * pie_GetVideoBufferWidth() / 3)
+#define RADTLY    (pie_GetVideoBufferHeight() * 3 / 4)
+#define RADWIDTH  (pie_GetVideoBufferWidth() / 3)
+#define RADHEIGHT (pie_GetVideoBufferHeight() / 4)
+#else
 #define	RADTLX		(OBJ_BACKX + OBJ_BACKWIDTH + BASE_GAP + 1 +D_W)	// Paul's settings (492+12)
 #define	RADTLY		(RET_Y + 1)									// Paul's settings (332-17)
 #define	RADWIDTH	128
 #define RADHEIGHT	128
+#endif
 
 #define SKY_MULT	1
 #define SKY_SHIMMY_BASE	((DEG(1)*SKY_MULT)/2)

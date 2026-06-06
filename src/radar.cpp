@@ -210,6 +210,21 @@ static void radarSize(int ZoomLevel)
 	float zoom = static_cast<float>(ZoomLevel) * RadarZoomMultiplier / 16.0f;
 	radarWidth = static_cast<size_t>(radarTexWidth * zoom);
 	radarHeight = static_cast<size_t>(radarTexHeight * zoom);
+#if defined(__ANDROID__)
+	{
+		// Override: center radar in the right-third bottom panel
+		int screenW = pie_GetVideoBufferWidth();
+		int screenH = pie_GetVideoBufferHeight();
+		int panelW = screenW / 3;
+		int panelH = screenH / 4;
+		// Keep the radar square, fit within the panel
+		int radarSide = std::min(panelW, panelH);
+		radarWidth  = static_cast<size_t>(radarSide);
+		radarHeight = static_cast<size_t>(radarSide);
+		radarCenterX = screenW - panelW / 2;
+		radarCenterY = screenH - panelH / 2;
+	}
+#else
 	if (rotateRadar)
 	{
 		radarCenterX = pie_GetVideoBufferWidth() - BASE_GAP * 4 - static_cast<int>(MAX(radarHeight, radarWidth)) / 2;
@@ -220,6 +235,7 @@ static void radarSize(int ZoomLevel)
 		radarCenterX = pie_GetVideoBufferWidth() - BASE_GAP * 4 - static_cast<int>(radarWidth) / 2;
 		radarCenterY = pie_GetVideoBufferHeight() - BASE_GAP * 4 - static_cast<int>(radarHeight) / 2;
 	}
+#endif
 	debug(LOG_WZ, "radar=(%u,%u) tex=(%zu,%zu) size=(%zu,%zu)", radarCenterX, radarCenterY, radarTexWidth, radarTexHeight, radarWidth, radarHeight);
 
 	if (pRadarWidget)
